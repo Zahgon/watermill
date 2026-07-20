@@ -9,3 +9,7 @@ docs/hugo_stats.json
 *.out
 *.log
 .mod-cache
+
+.aider*
+logs/
+vendor/
