@@ -10,11 +10,8 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
-// this will `tail -f` a log file and publish an alert if a line fulfils some criterion
-
 func main() {
-	// if an alert is raised, the offending line will be published on this
-	// this would be set to an actual publisher
+
 	var alertPublisher message.Publisher
 
 	if len(os.Args) < 2 {
@@ -34,7 +31,6 @@ func main() {
 		panic(err)
 	}
 
-	// for io.Subscriber, topic does not matter
 	lines, err := sub.Subscribe(context.Background(), "")
 	if err != nil {
 		panic(err)
@@ -47,7 +43,4 @@ func main() {
 	}
 }
 
-func criterion(line string) bool {
-	// decide whether an action needs to be taken
-	return false
-}
+func criterion(line string) bool { _ = "STUB: not implemented"; return false }

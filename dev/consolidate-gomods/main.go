@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-// simple script to consolidate all gomods to one gomod
-// required for GolangCI linter
 func main() {
 	bigFatGomod := ""
 
@@ -50,8 +48,6 @@ func main() {
 
 		_ = file.Close()
 
-		// gomod is stupid, and go vendor removes all deps that are not needed
-		// (and they are not needed if they are already meet in sub go.mods)
 		if err := os.Remove(fileName); err != nil {
 			panic(err)
 		}
@@ -60,23 +56,4 @@ func main() {
 	fmt.Println(bigFatGomod)
 }
 
-func getGomods() []string {
-	var fileList []string
-
-	err := filepath.Walk(".", func(path string, f os.FileInfo, err error) error {
-		if strings.Contains(path, "/vendor/") {
-			return nil
-		}
-
-		if strings.Contains(path, "go.mod") {
-			fileList = append(fileList, path)
-		}
-		return nil
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	return fileList
-}
+func getGomods() []string { _ = "STUB: not implemented"; return nil }

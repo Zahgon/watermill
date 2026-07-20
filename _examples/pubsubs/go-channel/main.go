@@ -1,10 +1,7 @@
-// Sources for https://watermill.io/learn/getting-started/
 package main
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
@@ -27,24 +24,6 @@ func main() {
 	publishMessages(pubSub)
 }
 
-func publishMessages(publisher message.Publisher) {
-	for {
-		msg := message.NewMessage(watermill.NewUUID(), []byte("Hello, world!"))
+func publishMessages(publisher message.Publisher) { _ = "STUB: not implemented"; return }
 
-		if err := publisher.Publish("example.topic", msg); err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Second)
-	}
-}
-
-func process(messages <-chan *message.Message) {
-	for msg := range messages {
-		fmt.Printf("received message: %s, payload: %s\n", msg.UUID, string(msg.Payload))
-
-		// we need to Acknowledge that we received and processed the message,
-		// otherwise, it will be resent over and over again.
-		msg.Ack()
-	}
-}
+func process(messages <-chan *message.Message) { _ = "STUB: not implemented"; return }

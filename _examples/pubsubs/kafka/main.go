@@ -1,10 +1,7 @@
-// Sources for https://watermill.io/learn/getting-started/
 package main
 
 import (
 	"context"
-	"log"
-	"time"
 
 	"github.com/IBM/sarama"
 
@@ -15,7 +12,7 @@ import (
 
 func main() {
 	saramaSubscriberConfig := kafka.DefaultSaramaSubscriberConfig()
-	// equivalent of auto.offset.reset: earliest
+
 	saramaSubscriberConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
 
 	subscriber, err := kafka.NewSubscriber(
@@ -52,24 +49,6 @@ func main() {
 	publishMessages(publisher)
 }
 
-func publishMessages(publisher message.Publisher) {
-	for {
-		msg := message.NewMessage(watermill.NewUUID(), []byte("Hello, world!"))
+func publishMessages(publisher message.Publisher) { _ = "STUB: not implemented"; return }
 
-		if err := publisher.Publish("example.topic", msg); err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Second)
-	}
-}
-
-func process(messages <-chan *message.Message) {
-	for msg := range messages {
-		log.Printf("received message: %s, payload: %s", msg.UUID, string(msg.Payload))
-
-		// we need to Acknowledge that we received and processed the message,
-		// otherwise, it will be resent over and over again.
-		msg.Ack()
-	}
-}
+func process(messages <-chan *message.Message) { _ = "STUB: not implemented"; return }

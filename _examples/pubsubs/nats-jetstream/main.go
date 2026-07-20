@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -94,12 +93,4 @@ func main() {
 	}
 }
 
-func processJS(messages <-chan *message.Message) {
-	for msg := range messages {
-		log.Printf("received message: %s, payload: %s", msg.UUID, string(msg.Payload))
-
-		// we need to Acknowledge that we received and processed the message,
-		// otherwise, it will be resent over and over again.
-		msg.Ack()
-	}
-}
+func processJS(messages <-chan *message.Message) { _ = "STUB: not implemented"; return }

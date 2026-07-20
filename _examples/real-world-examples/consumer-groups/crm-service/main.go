@@ -151,13 +151,11 @@ func main() {
 }
 
 func HandleCRM(ctx context.Context, e *common.UserSignedUp) error {
-	fmt.Println("Adding user", e.UserID, "to the CRM")
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func HandleSupport(ctx context.Context, e *common.UserSignedUp) error {
-	fmt.Println("Adding user", e.UserID, "to the support channel")
-
+	_ = "STUB: not implemented"
 	return nil
 }

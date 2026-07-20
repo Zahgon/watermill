@@ -14,37 +14,14 @@ const (
 	publishTopicKey   ctxKey = "publish_topic"
 )
 
-func valFromCtx(ctx context.Context, key ctxKey) string {
-	val, ok := ctx.Value(key).(string)
-	if !ok {
-		return ""
-	}
-	return val
-}
+func valFromCtx(ctx context.Context, key ctxKey) string { _ = "STUB: not implemented"; return "" }
 
-// HandlerNameFromCtx returns the name of the message handler in the router that consumed the message.
-func HandlerNameFromCtx(ctx context.Context) string {
-	return valFromCtx(ctx, handlerNameKey)
-}
+func HandlerNameFromCtx(ctx context.Context) string { _ = "STUB: not implemented"; return "" }
 
-// PublisherNameFromCtx returns the name of the message publisher type that published the message in the router.
-// For example, for Kafka it will be `kafka.Publisher`.
-func PublisherNameFromCtx(ctx context.Context) string {
-	return valFromCtx(ctx, publisherNameKey)
-}
+func PublisherNameFromCtx(ctx context.Context) string { _ = "STUB: not implemented"; return "" }
 
-// SubscriberNameFromCtx returns the name of the message subscriber type that subscribed to the message in the router.
-// For example, for Kafka it will be `kafka.Subscriber`.
-func SubscriberNameFromCtx(ctx context.Context) string {
-	return valFromCtx(ctx, subscriberNameKey)
-}
+func SubscriberNameFromCtx(ctx context.Context) string { _ = "STUB: not implemented"; return "" }
 
-// SubscribeTopicFromCtx returns the topic from which message was received in the router.
-func SubscribeTopicFromCtx(ctx context.Context) string {
-	return valFromCtx(ctx, subscribeTopicKey)
-}
+func SubscribeTopicFromCtx(ctx context.Context) string { _ = "STUB: not implemented"; return "" }
 
-// PublishTopicFromCtx returns the topic to which message will be published by the router.
-func PublishTopicFromCtx(ctx context.Context) string {
-	return valFromCtx(ctx, publishTopicKey)
-}
+func PublishTopicFromCtx(ctx context.Context) string { _ = "STUB: not implemented"; return "" }

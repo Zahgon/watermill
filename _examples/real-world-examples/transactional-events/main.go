@@ -5,13 +5,8 @@ import (
 	stdSQL "database/sql"
 	"encoding/json"
 	"log"
-	"time"
-
-	driver "github.com/go-sql-driver/mysql"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-kafka/v3/pkg/kafka"
-	"github.com/ThreeDotsLabs/watermill-sql/v4/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
@@ -66,116 +61,20 @@ func main() {
 	}
 }
 
-func createDB() *stdSQL.DB {
-	conf := driver.NewConfig()
-	conf.Net = "tcp"
-	conf.User = "root"
-	conf.Addr = "mysql"
-	conf.DBName = "watermill"
-
-	db, err := stdSQL.Open("mysql", conf.FormatDSN())
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
-}
+func createDB() *stdSQL.DB { _ = "STUB: not implemented"; return nil }
 
 func createSubscriber(db *stdSQL.DB) message.Subscriber {
-	sub, err := sql.NewSubscriber(
-		sql.BeginnerFromStdSQL(db),
-		sql.SubscriberConfig{
-			SchemaAdapter:    sql.DefaultMySQLSchema{},
-			OffsetsAdapter:   sql.DefaultMySQLOffsetsAdapter{},
-			InitializeSchema: true,
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return sub
+	_ = "STUB: not implemented"
+	return *new(message.Subscriber)
 }
 
-func createPublisher() message.Publisher {
-	pub, err := kafka.NewPublisher(
-		kafka.PublisherConfig{
-			Brokers:   []string{"kafka:9092"},
-			Marshaler: kafka.DefaultMarshaler{},
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return pub
-}
+func createPublisher() message.Publisher { _ = "STUB: not implemented"; return *new(message.Publisher) }
 
 type event struct {
 	Name       string `json:"name"`
 	OccurredAt string `json:"occurred_at"`
 }
 
-func simulateEvents(db *stdSQL.DB) {
-	for {
-		tx, err := db.Begin()
-		if err != nil {
-			panic(err)
-		}
+func simulateEvents(db *stdSQL.DB) { _ = "STUB: not implemented"; return }
 
-		// In an actual application, this is the place where some aggregate would be persisted
-		// using the same transaction.
-		// tx.Exec("INSERT INTO (...)")
-
-		err = publishEvent(tx)
-		if err != nil {
-			rollbackErr := tx.Rollback()
-			if rollbackErr != nil {
-				panic(rollbackErr)
-			}
-			panic(err)
-		}
-
-		err = tx.Commit()
-		if err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Second)
-	}
-}
-
-// publishEvent publishes a new event.
-// To publish the event in a separate transaction, a new SQL Publisher
-// has to be created each time, passing the proper transaction handle.
-func publishEvent(tx *stdSQL.Tx) error {
-	pub, err := sql.NewPublisher(
-		sql.TxFromStdSQL(tx),
-		sql.PublisherConfig{
-			SchemaAdapter: sql.DefaultMySQLSchema{},
-		}, logger)
-	if err != nil {
-		return err
-	}
-
-	e := event{
-		Name:       "UserSignedUp",
-		OccurredAt: time.Now().UTC().Format(time.RFC3339),
-	}
-	payload, err := json.Marshal(e)
-	if err != nil {
-		return err
-	}
-
-	return pub.Publish(mysqlTable, message.NewMessage(
-		watermill.NewUUID(),
-		payload,
-	))
-}
+func publishEvent(tx *stdSQL.Tx) error { _ = "STUB: not implemented"; return nil }

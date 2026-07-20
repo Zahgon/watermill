@@ -28,7 +28,7 @@ For the configuration of consuming/producing of the messages, check the help of 
 
 			if viper.GetBool("kafka.consume.fromBeginning") {
 				logger.Trace("Configured sarama to consume messages from beginning", nil)
-				// equivalent of auto.offset.reset: earliest
+
 				saramaSubscriberConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
 			}
 
@@ -78,8 +78,6 @@ func init() {
 	consumeCmd := addConsumeCmd(kafkaCmd, "kafka.topic")
 	_ = addProduceCmd(kafkaCmd, "kafka.topic")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
 	kafkaCmd.PersistentFlags().StringSliceP("brokers", "b", nil, "A list of kafka brokers")
 	ensure(kafkaCmd.MarkPersistentFlagRequired("brokers"))
 	ensure(viper.BindPFlag("kafka.brokers", kafkaCmd.PersistentFlags().Lookup("brokers")))

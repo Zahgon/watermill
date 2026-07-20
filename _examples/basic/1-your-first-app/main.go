@@ -19,8 +19,8 @@ var (
 	publishTopic = "events-processed"
 
 	logger = watermill.NewStdLogger(
-		true,  // debug
-		false, // trace
+		true,
+		false,
 	)
 	marshaler = kafka.DefaultMarshaler{}
 )
@@ -37,7 +37,6 @@ type processedEvent struct {
 func main() {
 	publisher := createPublisher()
 
-	// Subscriber is created with consumer group handler_1
 	subscriber := createSubscriber("handler_1")
 
 	router, err := message.NewRouter(message.RouterConfig{}, logger)
@@ -48,22 +47,17 @@ func main() {
 	router.AddPlugin(plugin.SignalsHandler)
 	router.AddMiddleware(middleware.Recoverer)
 
-	// Adding a handler (multiple handlers can be added)
 	router.AddHandler(
-		"handler_1",  // handler name, must be unique
-		consumeTopic, // topic from which messages should be consumed
+		"handler_1",
+		consumeTopic,
 		subscriber,
-		publishTopic, // topic to which messages should be published
+		publishTopic,
 		publisher,
 		func(msg *message.Message) ([]*message.Message, error) {
 			consumedPayload := event{}
 			err := json.Unmarshal(msg.Payload, &consumedPayload)
 			if err != nil {
-				// When a handler returns an error, the default behavior is to send a Nack (negative-acknowledgement).
-				// The message will be processed again.
-				//
-				// You can change the default behaviour by using middlewares, like Retry or PoisonQueue.
-				// You can also implement your own middleware.
+
 				return nil, err
 			}
 
@@ -83,7 +77,6 @@ func main() {
 		},
 	)
 
-	// Simulate incoming events in the background
 	go simulateEvents(publisher)
 
 	if err := router.Run(context.Background()); err != nil {
@@ -91,62 +84,11 @@ func main() {
 	}
 }
 
-// createPublisher is a helper function that creates a Publisher, in this case - the Kafka Publisher.
-func createPublisher() message.Publisher {
-	kafkaPublisher, err := kafka.NewPublisher(
-		kafka.PublisherConfig{
-			Brokers:   brokers,
-			Marshaler: marshaler,
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
+func createPublisher() message.Publisher { _ = "STUB: not implemented"; return *new(message.Publisher) }
 
-	return kafkaPublisher
-}
-
-// createSubscriber is a helper function similar to the previous one, but in this case it creates a Subscriber.
 func createSubscriber(consumerGroup string) message.Subscriber {
-	kafkaSubscriber, err := kafka.NewSubscriber(
-		kafka.SubscriberConfig{
-			Brokers:       brokers,
-			Unmarshaler:   marshaler,
-			ConsumerGroup: consumerGroup, // every handler will use a separate consumer group
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return kafkaSubscriber
+	_ = "STUB: not implemented"
+	return *new(message.Subscriber)
 }
 
-// simulateEvents produces events that will be later consumed.
-func simulateEvents(publisher message.Publisher) {
-	i := 0
-	for {
-		e := event{
-			ID: i,
-		}
-
-		payload, err := json.Marshal(e)
-		if err != nil {
-			panic(err)
-		}
-
-		err = publisher.Publish(consumeTopic, message.NewMessage(
-			watermill.NewUUID(), // internal uuid of the message, useful for debugging
-			payload,
-		))
-		if err != nil {
-			panic(err)
-		}
-
-		i++
-
-		time.Sleep(time.Second)
-	}
-}
+func simulateEvents(publisher message.Publisher) { _ = "STUB: not implemented"; return }

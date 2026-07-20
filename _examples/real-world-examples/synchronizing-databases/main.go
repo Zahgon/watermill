@@ -7,14 +7,10 @@ import (
 	"encoding/gob"
 	"fmt"
 	"log"
-	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
-	driver "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-sql/v4/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
@@ -85,111 +81,18 @@ func main() {
 	}
 }
 
-func createMySQLConnection() *stdSQL.DB {
-	conf := driver.NewConfig()
-	conf.Net = "tcp"
-	conf.User = "root"
-	conf.Addr = "mysql"
-	conf.DBName = "watermill"
-	conf.ParseTime = true
+func createMySQLConnection() *stdSQL.DB { _ = "STUB: not implemented"; return nil }
 
-	db, err := stdSQL.Open("mysql", conf.FormatDSN())
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
-}
-
-func createPostgresConnection() *stdSQL.DB {
-	dsn := "postgres://watermill:password@postgres/watermill?sslmode=disable"
-	db, err := stdSQL.Open("postgres", dsn)
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
-}
+func createPostgresConnection() *stdSQL.DB { _ = "STUB: not implemented"; return nil }
 
 func createSubscriber(db *stdSQL.DB) message.Subscriber {
-	sub, err := sql.NewSubscriber(
-		sql.BeginnerFromStdSQL(db),
-		sql.SubscriberConfig{
-			SchemaAdapter:    mysqlSchemaAdapter{},
-			OffsetsAdapter:   sql.DefaultMySQLOffsetsAdapter{},
-			InitializeSchema: true,
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return sub
+	_ = "STUB: not implemented"
+	return *new(message.Subscriber)
 }
 
 func createPublisher(db *stdSQL.DB) message.Publisher {
-	pub, err := sql.NewPublisher(
-		sql.BeginnerFromStdSQL(db),
-		sql.PublisherConfig{
-			SchemaAdapter:        postgresSchemaAdapter{},
-			AutoInitializeSchema: true,
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return pub
+	_ = "STUB: not implemented"
+	return *new(message.Publisher)
 }
 
-func simulateEvents(db *stdSQL.DB) {
-	pub, err := sql.NewPublisher(
-		sql.BeginnerFromStdSQL(db),
-		sql.PublisherConfig{
-			SchemaAdapter:        mysqlSchemaAdapter{},
-			AutoInitializeSchema: true,
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	for {
-		user := mysqlUser{
-			User:      gofakeit.Username(),
-			FirstName: gofakeit.FirstName(),
-			LastName:  gofakeit.LastName(),
-			CreatedAt: time.Now().UTC(),
-		}
-
-		var payload bytes.Buffer
-		encoder := gob.NewEncoder(&payload)
-		err := encoder.Encode(user)
-		if err != nil {
-			panic(err)
-		}
-
-		err = pub.Publish(mysqlTable, message.NewMessage(
-			watermill.NewUUID(),
-			payload.Bytes(),
-		))
-		if err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Second)
-	}
-}
+func simulateEvents(db *stdSQL.DB) { _ = "STUB: not implemented"; return }

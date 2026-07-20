@@ -9,20 +9,16 @@ const (
 	subscribeObserved
 )
 
-// setPublishObservedToCtx is used to achieve metrics idempotency in case of double applied middleware
 func setPublishObservedToCtx(ctx context.Context) context.Context {
-	return context.WithValue(ctx, publishObserved, true)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
-func publishAlreadyObserved(ctx context.Context) bool {
-	return ctx.Value(publishObserved) != nil
-}
+func publishAlreadyObserved(ctx context.Context) bool { _ = "STUB: not implemented"; return false }
 
-// setSubscribeObservedToCtx is used to achieve metrics idempotency in case of double applied middleware
 func setSubscribeObservedToCtx(ctx context.Context) context.Context {
-	return context.WithValue(ctx, subscribeObserved, true)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
-func subscribeAlreadyObserved(ctx context.Context) bool {
-	return ctx.Value(subscribeObserved) != nil
-}
+func subscribeAlreadyObserved(ctx context.Context) bool { _ = "STUB: not implemented"; return false }

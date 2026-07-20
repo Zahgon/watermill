@@ -12,16 +12,12 @@ const (
 	originalMessage ctxKey = "original_message"
 )
 
-// OriginalMessageFromCtx returns the original message that was received by the event/command handler.
 func OriginalMessageFromCtx(ctx context.Context) *message.Message {
-	val, ok := ctx.Value(originalMessage).(*message.Message)
-	if !ok {
-		return nil
-	}
-	return val
+	_ = "STUB: not implemented"
+	return nil
 }
 
-// CtxWithOriginalMessage returns a new context with the original message attached.
 func CtxWithOriginalMessage(ctx context.Context, msg *message.Message) context.Context {
-	return context.WithValue(ctx, originalMessage, msg)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
