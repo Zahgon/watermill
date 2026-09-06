@@ -2,20 +2,14 @@ package cmd
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"strings"
 	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-googlecloud/pkg/googlecloud"
-	"github.com/ThreeDotsLabs/watermill/tools/mill/cmd/internal"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"google.golang.org/api/iterator"
-	"gopkg.in/yaml.v2"
 )
 
 var googleCloudTempSubscriptionID string
@@ -101,7 +95,6 @@ var googleCloudSubscriptionAddCmd = &cobra.Command{
 		retainAcked := viper.GetBool("googlecloud.subscription.add.retainAcked")
 		retentionDuration := viper.GetDuration("googlecloud.subscription.add.retentionDuration")
 
-		// StringToString doesn't work with viper, so let's parse this manually
 		labels := strings.Split(viper.GetString("googlecloud.subscription.add.labels"), ",")
 		labelsMap := make(map[string]string, len(labels))
 		for _, l := range labels {
@@ -182,26 +175,7 @@ var googleCloudSubscriptionLsCmd = &cobra.Command{
 	},
 }
 
-func generateTempSubscription() (id string, err error) {
-	defer func() {
-		if err == nil {
-			logger.Debug("Temp subscription created", watermill.LogFields{
-				"subscription_name": id,
-			})
-			googleCloudTempSubscriptionID = id
-		}
-	}()
-
-	randomID := "watermill_console_consumer_" + watermill.NewShortUUID()
-	return randomID, addSubscription(
-		randomID,
-		viper.GetString("googlecloud.topic"),
-		10*time.Second,
-		false,
-		10*time.Minute,
-		nil,
-	)
-}
+func generateTempSubscription() (id string, err error) { _ = "STUB: not implemented"; return "", nil }
 
 func addSubscription(
 	id string,
@@ -211,173 +185,29 @@ func addSubscription(
 	retentionDuration time.Duration,
 	labels map[string]string,
 ) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	client, err := pubsub.NewClient(ctx, projectID())
-	if err != nil {
-		return errors.Wrap(err, "could not create pubsub client")
-	}
-
-	t := client.Topic(topic)
-	exists, err := t.Exists(ctx)
-	if err != nil {
-		return errors.Wrap(err, "could not check if topic exists")
-	}
-	if !exists {
-		t, err = client.CreateTopic(ctx, t.ID())
-		if err != nil {
-			return errors.Wrap(err, "could not create topic")
-		}
-	}
-
-	_, err = client.CreateSubscription(ctx, id, pubsub.SubscriptionConfig{
-		Topic:               t,
-		AckDeadline:         ackDeadline,
-		RetainAckedMessages: retainAckedMessages,
-		RetentionDuration:   retentionDuration,
-		Labels:              labels,
-	})
-	if err != nil {
-		return errors.Wrap(err, "could not create subscription")
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func removeTempSubscription() (err error) {
-	defer func() {
-		if err == nil {
-			logger.Debug("Temporary subscription removed", watermill.LogFields{
-				"subscription_name": googleCloudTempSubscriptionID,
-			})
-		}
-	}()
-	return removeSubscription(googleCloudTempSubscriptionID)
-}
+func removeTempSubscription() (err error) { _ = "STUB: not implemented"; return nil }
 
-func removeSubscription(id string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	client, err := pubsub.NewClient(ctx, projectID())
-	if err != nil {
-		return errors.Wrap(err, "could not create pubsub client")
-	}
-
-	sub := client.Subscription(id)
-	exists, err := sub.Exists(ctx)
-	if err != nil {
-		return errors.Wrap(err, "could not check if sub exists")
-	}
-
-	if !exists {
-		return nil
-	}
-
-	return sub.Delete(ctx)
-}
+func removeSubscription(id string) error { _ = "STUB: not implemented"; return nil }
 
 func listSubscriptions(topic string, adapter watermill.LoggerAdapter, verbose bool) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	client, err := pubsub.NewClient(ctx, projectID())
-	if err != nil {
-		return errors.Wrap(err, "could not create pubsub client")
-	}
-
-	if topic != "" {
-		topic := client.Topic(topic)
-		return listSubscriptionsForTopic(ctx, client, topic, logger, verbose)
-	}
-
-	it := client.Topics(ctx)
-	noTopics := true
-	for {
-		topic, err := it.Next()
-		if err == iterator.Done {
-			if noTopics {
-				logger.Info("No topics in project", nil)
-			}
-			return nil
-		}
-		if err != nil {
-			return errors.Wrap(err, "could not retrieve next subscription")
-		}
-
-		noTopics = false
-		err = listSubscriptionsForTopic(ctx, client, topic, logger, verbose)
-		if err != nil {
-			return errors.Wrap(err, "error listing subscriptions for topic")
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func listSubscriptionsForTopic(ctx context.Context, client *pubsub.Client, topic *pubsub.Topic, logger watermill.LoggerAdapter, verbose bool) error {
-	noSubs := true
-	exists, err := topic.Exists(ctx)
-	if err != nil {
-		return errors.Wrap(err, "could not check if topic exists")
-	}
-	if !exists {
-		logger.Info("Topic does not exist", watermill.LogFields{"topic": topic.String()})
-		return nil
-	}
-
-	it := topic.Subscriptions(ctx)
-	for {
-		sub, err := it.Next()
-		if err == iterator.Done {
-			if noSubs {
-				logger.Info("No subscriptions for the topic", watermill.LogFields{"topic": topic.String()})
-			}
-			return nil
-		}
-		if err != nil {
-			return errors.Wrap(err, "could not retrieve next subscription")
-		}
-
-		if noSubs {
-			noSubs = false
-			fmt.Printf("Topic %s:\n", topic.String())
-		}
-		name := sub.String()
-		config, err := sub.Config(ctx)
-		if err != nil {
-			return errors.Wrapf(err, "could not retrieve subscription config for subscription '%s'", name)
-		}
-
-		err = printSubscriptionInfo(name, config)
-		if err != nil {
-			return errors.Wrapf(err, "error printing subscription '%s'", name)
-		}
-	}
-}
-
-func printSubscriptionInfo(name string, config pubsub.SubscriptionConfig) error {
-	b, err := yaml.Marshal(subscriptionConfig{
-		Name: name,
-		PushConfig: subscriptionConfigPushConfig{
-			Endpoint:   config.PushConfig.Endpoint,
-			Attributes: config.PushConfig.Attributes,
-		},
-		AckDeadline:         config.AckDeadline,
-		RetainAckedMessages: config.RetainAckedMessages,
-		RetentionDuration:   config.RetentionDuration,
-		Labels:              config.Labels,
-	})
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf(internal.Indent(string(b), "  "))
+	_ = "STUB: not implemented"
 	return nil
 }
 
-// subscriptionConfig provides a marshallable form to pubsub.SubscriptionConfig
+func printSubscriptionInfo(name string, config pubsub.SubscriptionConfig) error {
+	_ = "STUB: not implemented"
+	return nil
+}
+
 type subscriptionConfig struct {
 	Name                string
 	PushConfig          subscriptionConfigPushConfig `yaml:"push_config"`
@@ -392,14 +222,7 @@ type subscriptionConfigPushConfig struct {
 	Attributes map[string]string
 }
 
-func projectID() string {
-	projectID := viper.GetString("googlecloud.projectID")
-	if projectID == "" {
-		projectID = os.Getenv("GOOGLE_CLOUD_PROJECT")
-	}
-
-	return projectID
-}
+func projectID() string { _ = "STUB: not implemented"; return "" }
 
 func init() {
 	rootCmd.AddCommand(googleCloudCmd)
@@ -416,8 +239,6 @@ func init() {
 	consumeCmd := addConsumeCmd(googleCloudCmd, "googlecloud.topic")
 	addProduceCmd(googleCloudCmd, "googlecloud.topic")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
 	googleCloudCmd.PersistentFlags().String("project", "", "The projectID for Google Cloud Pub/Sub. Defaults to the GOOGLE_CLOUD_PROJECT environment variable.")
 	ensure(viper.BindPFlag("googlecloud.projectID", googleCloudCmd.PersistentFlags().Lookup("project")))
 
@@ -458,7 +279,6 @@ func init() {
 	)
 	ensure(viper.BindPFlag("googlecloud.subscription.add.retentionDuration", googleCloudSubscriptionAddCmd.Flags().Lookup("retention-duration")))
 
-	// StringToString doesn't work correctly with viper
 	googleCloudSubscriptionAddCmd.Flags().String(
 		"labels",
 		"",

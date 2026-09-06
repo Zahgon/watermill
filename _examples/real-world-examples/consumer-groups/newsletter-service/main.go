@@ -375,21 +375,11 @@ func main() {
 }
 
 func HandleNews(ctx context.Context, e *common.UserSignedUp) error {
-	if !e.Consents.News {
-		return nil
-	}
-
-	fmt.Println("Adding user", e.UserID, "to the news list")
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func HandlePromotions(ctx context.Context, e *common.UserSignedUp) error {
-	if !e.Consents.Marketing {
-		return nil
-	}
-
-	fmt.Println("Adding user", e.UserID, "to the promotions list")
-
+	_ = "STUB: not implemented"
 	return nil
 }

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/ThreeDotsLabs/watermill-amqp/v3/pkg/amqp"
 )
@@ -39,66 +38,9 @@ For the configuration of consuming/producing of the messages, check the help of 
 	},
 }
 
-func amqpConsumerConfig() amqp.Config {
-	uri := viper.GetString("amqp.uri")
-	queue := viper.GetString("amqp.consume.queue")
-	exchangeName := viper.GetString("amqp.consume.exchange")
-	exchangeType := viper.GetString("amqp.produce.exchangeType")
-	durable := viper.GetBool("amqp.durable")
+func amqpConsumerConfig() amqp.Config { _ = "STUB: not implemented"; return *new(amqp.Config) }
 
-	return amqp.Config{
-		Connection: amqp.ConnectionConfig{
-			AmqpURI: uri,
-		},
-		Marshaler: amqp.DefaultMarshaler{},
-		Queue: amqp.QueueConfig{
-			GenerateName: func(topic string) string {
-				return queue
-			},
-			Durable: durable,
-		},
-		Consume: amqp.ConsumeConfig{
-			Qos: amqp.QosConfig{
-				PrefetchCount: 1,
-			},
-		},
-
-		Exchange: amqp.ExchangeConfig{
-			GenerateName: func(topic string) string {
-				return exchangeName
-			},
-			Type:    exchangeType,
-			Durable: durable,
-		},
-	}
-}
-
-func amqpProducerConfig() amqp.Config {
-	uri := viper.GetString("amqp.uri")
-	exchangeName := viper.GetString("amqp.produce.exchange")
-	exchangeType := viper.GetString("amqp.produce.exchangeType")
-	routingKey := viper.GetString("amqp.produce.routingKey")
-	durable := viper.GetBool("amqp.durable")
-
-	return amqp.Config{
-		Connection: amqp.ConnectionConfig{
-			AmqpURI: uri,
-		},
-		Marshaler: amqp.DefaultMarshaler{},
-		Exchange: amqp.ExchangeConfig{
-			GenerateName: func(topic string) string {
-				return exchangeName
-			},
-			Type:    exchangeType,
-			Durable: durable,
-		},
-		Publish: amqp.PublishConfig{
-			GenerateRoutingKey: func(topic string) string {
-				return routingKey
-			},
-		},
-	}
-}
+func amqpProducerConfig() amqp.Config { _ = "STUB: not implemented"; return *new(amqp.Config) }
 
 func init() {
 	rootCmd.AddCommand(amqpCmd)
@@ -109,66 +51,8 @@ func init() {
 	configureProduceCmd(produceCmd)
 }
 
-func configureAmqpCmd() {
-	amqpCmd.PersistentFlags().StringP(
-		"uri",
-		"u",
-		"",
-		"The URI to the AMQP instance (required)",
-	)
-	ensure(amqpCmd.MarkPersistentFlagRequired("uri"))
-	ensure(viper.BindPFlag("amqp.uri", amqpCmd.PersistentFlags().Lookup("uri")))
+func configureAmqpCmd() { _ = "STUB: not implemented"; return }
 
-	amqpCmd.PersistentFlags().Bool(
-		"durable",
-		true,
-		"If true, the queues and exchanges created automatically (if any) will be durable",
-	)
-	ensure(viper.BindPFlag("amqp.durable", amqpCmd.PersistentFlags().Lookup("durable")))
+func configureConsumeCmd(consumeCmd *cobra.Command) { _ = "STUB: not implemented"; return }
 
-	amqpCmd.PersistentFlags().String(
-		"exchange-type",
-		"fanout",
-		"If exchange needs to be created, it will be created with this type. The common types are 'direct', 'fanout', 'topic' and 'headers'.",
-	)
-	ensure(viper.BindPFlag("amqp.produce.exchangeType", amqpCmd.PersistentFlags().Lookup("exchange-type")))
-}
-
-func configureConsumeCmd(consumeCmd *cobra.Command) {
-	consumeCmd.PersistentFlags().StringP(
-		"queue",
-		"q",
-		"",
-		"The name of the AMQP queue to consume messages from (required)",
-	)
-	ensure(consumeCmd.MarkPersistentFlagRequired("queue"))
-	ensure(viper.BindPFlag("amqp.consume.queue", consumeCmd.PersistentFlags().Lookup("queue")))
-
-	consumeCmd.PersistentFlags().StringP(
-		"exchange",
-		"x",
-		"",
-		"If non-empty, an exchange with this name is created if it didn't exist. Then, the queue is bound to this exchange.",
-	)
-	ensure(viper.BindPFlag("amqp.consume.exchange", consumeCmd.PersistentFlags().Lookup("exchange")))
-}
-
-func configureProduceCmd(produceCmd *cobra.Command) {
-	produceCmd.PersistentFlags().StringP(
-		"exchange",
-		"x",
-		"",
-		"The name of the AMQP exchange to produce messages to (required)",
-	)
-	ensure(produceCmd.MarkPersistentFlagRequired("exchange"))
-	ensure(viper.BindPFlag("amqp.produce.exchange", produceCmd.PersistentFlags().Lookup("exchange")))
-
-	produceCmd.PersistentFlags().StringP(
-		"routing-key",
-		"r",
-		"",
-		"The routing key to use when publishing the message.",
-	)
-	ensure(produceCmd.MarkPersistentFlagRequired("routing-key"))
-	ensure(viper.BindPFlag("amqp.produce.routingKey", produceCmd.PersistentFlags().Lookup("routing-key")))
-}
+func configureProduceCmd(produceCmd *cobra.Command) { _ = "STUB: not implemented"; return }

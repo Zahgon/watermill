@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -60,14 +59,7 @@ Use console-based producer or consumer for various pub/sub providers.`,
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
+func Execute() { _ = "STUB: not implemented"; return }
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -91,59 +83,8 @@ func init() {
 	rootCmd.PersistentFlags().AddFlagSet(outputFlags)
 }
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+func initConfig() { _ = "STUB: not implemented"; return }
 
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".mill")
-	}
+func ensure(err error) { _ = "STUB: not implemented"; return }
 
-	// read in environment variables that match
-	viper.AutomaticEnv()
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
-}
-
-func ensure(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func checkRequiredFlags(flags *pflag.FlagSet) error {
-	requiredError := false
-	flagName := ""
-
-	flags.VisitAll(func(flag *pflag.Flag) {
-		requiredAnnotation := flag.Annotations[cobra.BashCompOneRequiredFlag]
-		if len(requiredAnnotation) == 0 {
-			return
-		}
-
-		flagRequired := requiredAnnotation[0] == "true"
-
-		if flagRequired && !flag.Changed {
-			requiredError = true
-			flagName = flag.Name
-		}
-	})
-
-	if requiredError {
-		return errors.New("Required flag `" + flagName + "` has not been set")
-	}
-
-	return nil
-}
+func checkRequiredFlags(flags *pflag.FlagSet) error { _ = "STUB: not implemented"; return nil }

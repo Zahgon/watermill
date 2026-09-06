@@ -5,13 +5,8 @@ import (
 	stdSQL "database/sql"
 	"encoding/json"
 	"log"
-	"time"
-
-	driver "github.com/go-sql-driver/mysql"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-googlecloud/v2/pkg/googlecloud"
-	"github.com/ThreeDotsLabs/watermill-sql/v4/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
@@ -68,82 +63,16 @@ func main() {
 	}
 }
 
-func createDB() *stdSQL.DB {
-	conf := driver.NewConfig()
-	conf.Net = "tcp"
-	conf.User = "root"
-	conf.Addr = "mysql"
-	conf.DBName = "watermill"
-
-	db, err := stdSQL.Open("mysql", conf.FormatDSN())
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
-}
+func createDB() *stdSQL.DB { _ = "STUB: not implemented"; return nil }
 
 func createSubscriber() message.Subscriber {
-	sub, err := googlecloud.NewSubscriber(
-		googlecloud.SubscriberConfig{
-			ProjectID: "example",
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return sub
+	_ = "STUB: not implemented"
+	return *new(message.Subscriber)
 }
 
 func createPublisher(db *stdSQL.DB) message.Publisher {
-	pub, err := sql.NewPublisher(
-		sql.BeginnerFromStdSQL(db),
-		sql.PublisherConfig{
-			SchemaAdapter:        sql.DefaultMySQLSchema{},
-			AutoInitializeSchema: true,
-		},
-		logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return pub
+	_ = "STUB: not implemented"
+	return *new(message.Publisher)
 }
 
-func simulateEvents() {
-	pub, err := googlecloud.NewPublisher(googlecloud.PublisherConfig{
-		ProjectID: "example",
-	}, logger)
-	if err != nil {
-		panic(err)
-	}
-
-	for {
-		e := event{
-			Name:       "UserSignedUp",
-			OccurredAt: time.Now().UTC().Format(time.RFC3339),
-		}
-		payload, err := json.Marshal(e)
-		if err != nil {
-			panic(err)
-		}
-
-		err = pub.Publish(googleCloudTopic, message.NewMessage(
-			watermill.NewUUID(),
-			payload,
-		))
-		if err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Second)
-	}
-}
+func simulateEvents() { _ = "STUB: not implemented"; return }

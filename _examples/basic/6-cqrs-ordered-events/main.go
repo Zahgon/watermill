@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-kafka/v3/pkg/kafka"
@@ -20,11 +18,9 @@ func main() {
 		slog.LevelInfo: slog.LevelDebug,
 	})
 
-	// We are decorating ProtobufMarshaler to add extra metadata to the message.
 	cqrsMarshaler := CqrsMarshalerDecorator{
 		cqrs.ProtoMarshaler{
-			// It will generate topic names based on the event/command type.
-			// So for example, for "RoomBooked" name will be "RoomBooked".
+
 			GenerateName: cqrs.StructName,
 		},
 	}
@@ -36,11 +32,8 @@ func main() {
 		},
 	)
 
-	// This marshaler converts Watermill messages to Kafka messages.
-	// We are using it to add partition key to the Kafka message.
 	kafkaMarshaler := kafka.NewWithPartitioningMarshaler(GenerateKafkaPartitionKey)
 
-	// You can use any Pub/Sub implementation from here: https://watermill.io/pubsubs/
 	publisher, err := kafka.NewPublisher(
 		kafka.PublisherConfig{
 			Brokers:   []string{"kafka:9092"},
@@ -52,17 +45,11 @@ func main() {
 		panic(err)
 	}
 
-	// CQRS is built on messages router. Detailed documentation: https://watermill.io/docs/messages-router/
 	router, err := message.NewRouter(message.RouterConfig{}, logger)
 	if err != nil {
 		panic(err)
 	}
 
-	// Simple middleware which will recover panics from event or command handlers.
-	// More about router middlewares you can find in the documentation:
-	// https://watermill.io/docs/messages-router/#middleware
-	//
-	// List of available middlewares you can find in message/router/middleware.
 	router.AddMiddleware(middleware.Recoverer)
 	router.AddMiddleware(func(h message.HandlerFunc) message.HandlerFunc {
 		return func(msg *message.Message) ([]*message.Message, error) {
@@ -73,7 +60,7 @@ func main() {
 
 	commandBus, err := cqrs.NewCommandBusWithConfig(publisher, cqrs.CommandBusConfig{
 		GeneratePublishTopic: func(params cqrs.CommandBusGeneratePublishTopicParams) (string, error) {
-			// We are using one topic for all commands to maintain the order of commands.
+
 			return "commands", nil
 		},
 		Marshaler: cqrsMarshaler,
@@ -85,7 +72,7 @@ func main() {
 
 	eventBus, err := cqrs.NewEventBusWithConfig(publisher, cqrs.EventBusConfig{
 		GeneratePublishTopic: func(params cqrs.GenerateEventPublishTopicParams) (string, error) {
-			// We are using one topic for all events to maintain the order of events.
+
 			return "events", nil
 		},
 		Marshaler: cqrsMarshaler,
@@ -154,8 +141,6 @@ func main() {
 
 	subscribersReadModel := NewSubscriberReadModel()
 
-	// All messages from this group will have one subscription.
-	// When message arrives, Watermill will match it with the correct handler.
 	err = eventProcessor.AddHandlersGroup(
 		"SubscriberReadModel",
 		cqrs.NewGroupEventHandler(subscribersReadModel.OnSubscribed),
@@ -168,8 +153,6 @@ func main() {
 
 	activityReadModel := NewActivityTimelineModel()
 
-	// All messages from this group will have one subscription.
-	// When message arrives, Watermill will match it with the correct handler.
 	err = eventProcessor.AddHandlersGroup(
 		"ActivityTimelineReadModel",
 		cqrs.NewGroupEventHandler(activityReadModel.OnSubscribed),
@@ -189,53 +172,15 @@ func main() {
 	}
 }
 
-func simulateTraffic(commandBus *cqrs.CommandBus) {
-	for i := 0; ; i++ {
-		subscriberID := watermill.NewUUID()
-
-		err := commandBus.Send(context.Background(), &Subscribe{
-			Metadata:     GenerateMessageMetadata(subscriberID),
-			SubscriberId: subscriberID,
-			Email:        fmt.Sprintf("user%d@example.com", i),
-		})
-		if err != nil {
-			slog.Error("Error sending Subscribe command", "err", err)
-		}
-		time.Sleep(time.Millisecond * 500)
-
-		err = commandBus.Send(context.Background(), &UpdateEmail{
-			Metadata:     GenerateMessageMetadata(subscriberID),
-			SubscriberId: subscriberID,
-			NewEmail:     fmt.Sprintf("updated%d@example.com", i),
-		})
-		if err != nil {
-			slog.Error("Error sending UpdateEmail command", "err", err)
-		}
-		time.Sleep(time.Millisecond * 500)
-
-		if i%3 == 0 {
-			err = commandBus.Send(context.Background(), &Unsubscribe{
-				Metadata:     GenerateMessageMetadata(subscriberID),
-				SubscriberId: subscriberID,
-			})
-			if err != nil {
-				slog.Error("Error sending Unsubscribe command", "err", err)
-			}
-		}
-		time.Sleep(time.Millisecond * 500)
-	}
-}
+func simulateTraffic(commandBus *cqrs.CommandBus) { _ = "STUB: not implemented"; return }
 
 type SubscribeHandler struct {
 	eventBus *cqrs.EventBus
 }
 
 func (h SubscribeHandler) Handle(ctx context.Context, cmd *Subscribe) error {
-	return h.eventBus.Publish(ctx, &SubscriberSubscribed{
-		Metadata:     GenerateMessageMetadata(cmd.SubscriberId),
-		SubscriberId: cmd.SubscriberId,
-		Email:        cmd.Email,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type UnsubscribeHandler struct {
@@ -243,10 +188,8 @@ type UnsubscribeHandler struct {
 }
 
 func (h UnsubscribeHandler) Handle(ctx context.Context, cmd *Unsubscribe) error {
-	return h.eventBus.Publish(ctx, &SubscriberUnsubscribed{
-		Metadata:     GenerateMessageMetadata(cmd.SubscriberId),
-		SubscriberId: cmd.SubscriberId,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type UpdateEmailHandler struct {
@@ -254,9 +197,6 @@ type UpdateEmailHandler struct {
 }
 
 func (h UpdateEmailHandler) Handle(ctx context.Context, cmd *UpdateEmail) error {
-	return h.eventBus.Publish(ctx, &SubscriberEmailUpdated{
-		Metadata:     GenerateMessageMetadata(cmd.SubscriberId),
-		SubscriberId: cmd.SubscriberId,
-		NewEmail:     cmd.NewEmail,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }

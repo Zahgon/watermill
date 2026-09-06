@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
-	"math"
 	"math/rand"
 	"time"
 
@@ -24,54 +22,18 @@ var (
 	random = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
-func delay() {
-	seconds := *handlerDelay
-	if seconds == 0 {
-		return
-	}
-	delay := math.Abs(random.NormFloat64() * seconds)
-	time.Sleep(time.Duration(float64(time.Second) * delay))
-}
+func delay() { _ = "STUB: not implemented"; return }
 
-// handler publishes 0–3 messages after a random delay.
 func handler(msg *message.Message) ([]*message.Message, error) {
-	delay()
-
-	numOutgoing := random.Intn(4)
-	outgoing := make([]*message.Message, numOutgoing)
-
-	for i := 0; i < numOutgoing; i++ {
-		outgoing[i] = msg.Copy()
-	}
-	return outgoing, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-// consumeMessages consumes messages published by the handler.
-func consumeMessages(subscriber message.Subscriber) {
-	messages, err := subscriber.Subscribe(context.Background(), "pub_topic")
-	if err != nil {
-		panic(err)
-	}
+func consumeMessages(subscriber message.Subscriber) { _ = "STUB: not implemented"; return }
 
-	for msg := range messages {
-		msg.Ack()
-	}
-}
-
-// produceMessages generates incoming messages with delays of 50–100 milliseconds.
 func produceMessages(routerClosed chan struct{}, publisher message.Publisher) {
-	for {
-		select {
-		case <-routerClosed:
-			return
-		default:
-			// go on
-		}
-
-		time.Sleep(50*time.Millisecond + time.Duration(random.Intn(50))*time.Millisecond)
-		msg := message.NewMessage(watermill.NewUUID(), []byte{})
-		_ = publisher.Publish("sub_topic", msg)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func main() {
@@ -90,7 +52,6 @@ func main() {
 	prometheusRegistry, closeMetricsServer := metrics.CreateRegistryAndServeHTTP(*metricsAddr)
 	defer closeMetricsServer()
 
-	// we leave the namespace and subsystem empty
 	metricsBuilder := metrics.NewPrometheusMetricsBuilder(prometheusRegistry, "", "")
 	metricsBuilder.AddPrometheusRouterMetrics(router)
 
@@ -112,10 +73,6 @@ func main() {
 
 	pub := randomFailPublisherDecorator{pubSub, 0.1}
 
-	// The handler's publisher and subscriber will be decorated by `AddPrometheusRouterMetrics`.
-	// We are using the same pub/sub to generate messages incoming to the handler
-	// and consume the outgoing messages.
-	// These will have the label handler_name=<no handler> in Prometheus.
 	subWithMetrics, err := metricsBuilder.DecorateSubscriber(pubSub)
 	if err != nil {
 		panic(err)
@@ -139,8 +96,6 @@ type randomFailPublisherDecorator struct {
 }
 
 func (r randomFailPublisherDecorator) Publish(topic string, messages ...*message.Message) error {
-	if random.Float64() < r.failProbability {
-		return errors.New("random publishing failure")
-	}
-	return r.Publisher.Publish(topic, messages...)
+	_ = "STUB: not implemented"
+	return nil
 }

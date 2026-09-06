@@ -2,8 +2,6 @@ package cli
 
 import (
 	"context"
-
-	"github.com/pkg/errors"
 )
 
 type BackendConfig struct {
@@ -11,17 +9,7 @@ type BackendConfig struct {
 	RawTopic string
 }
 
-func (c BackendConfig) Validate() error {
-	if c.Topic == "" && c.RawTopic == "" {
-		return errors.New("topic or raw topic must be provided")
-	}
-
-	if c.Topic != "" && c.RawTopic != "" {
-		return errors.New("only one of topic or raw topic must be provided")
-	}
-
-	return nil
-}
+func (c BackendConfig) Validate() error { _ = "STUB: not implemented"; return nil }
 
 type BackendConstructor func(ctx context.Context, cfg BackendConfig) (Backend, error)
 

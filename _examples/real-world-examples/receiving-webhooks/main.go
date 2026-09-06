@@ -76,9 +76,9 @@ func main() {
 
 	r.AddHandler(
 		"http_to_kafka",
-		"/webhooks", // this is the URL of our API
+		"/webhooks",
 		httpSubscriber,
-		"webhooks", // this is the topic the message will be published to
+		"webhooks",
 		kafkaPublisher,
 		func(msg *message.Message) ([]*message.Message, error) {
 			webhook := Webhook{}
@@ -87,18 +87,16 @@ func main() {
 				return nil, fmt.Errorf("cannot unmarshal message: %w", err)
 			}
 
-			// Add simple validation
 			if webhook.ObjectKind == "" {
 				return nil, errors.New("empty object kind")
 			}
 
-			// Simply forward the message from HTTP Subscriber to Kafka Publisher
 			return []*message.Message{msg}, nil
 		},
 	)
 
 	go func() {
-		// HTTP server needs to be started after the router is ready.
+
 		<-r.Running()
 		_ = httpSubscriber.StartHTTPServer()
 	}()

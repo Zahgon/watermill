@@ -1,13 +1,8 @@
-// Sources for https://watermill.io/learn/getting-started/
 package main
 
 import (
 	"context"
 	stdSQL "database/sql"
-	"log"
-	"time"
-
-	driver "github.com/go-sql-driver/mysql"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-sql/v4/pkg/sql"
@@ -52,44 +47,8 @@ func main() {
 	publishMessages(publisher)
 }
 
-func createDB() *stdSQL.DB {
-	conf := driver.NewConfig()
-	conf.Net = "tcp"
-	conf.User = "root"
-	conf.Addr = "mysql"
-	conf.DBName = "watermill"
+func createDB() *stdSQL.DB { _ = "STUB: not implemented"; return nil }
 
-	db, err := stdSQL.Open("mysql", conf.FormatDSN())
-	if err != nil {
-		panic(err)
-	}
+func publishMessages(publisher message.Publisher) { _ = "STUB: not implemented"; return }
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
-}
-
-func publishMessages(publisher message.Publisher) {
-	for {
-		msg := message.NewMessage(watermill.NewUUID(), []byte(`{"message": "Hello, world!"}`))
-
-		if err := publisher.Publish("example_topic", msg); err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Second)
-	}
-}
-
-func process(messages <-chan *message.Message) {
-	for msg := range messages {
-		log.Printf("received message: %s, payload: %s", msg.UUID, string(msg.Payload))
-
-		// we need to Acknowledge that we received and processed the message,
-		// otherwise, it will be resent over and over again.
-		msg.Ack()
-	}
-}
+func process(messages <-chan *message.Message) { _ = "STUB: not implemented"; return }

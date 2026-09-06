@@ -4,20 +4,10 @@ import (
 	"reflect"
 )
 
-func isPointer(v interface{}) error {
-	rv := reflect.ValueOf(v)
-
-	if rv.Kind() != reflect.Pointer || rv.IsNil() {
-		return NonPointerError{rv.Type()}
-	}
-
-	return nil
-}
+func isPointer(v interface{}) error { _ = "STUB: not implemented"; return nil }
 
 type NonPointerError struct {
 	Type reflect.Type
 }
 
-func (e NonPointerError) Error() string {
-	return "non-pointer command: " + e.Type.String() + ", handler.NewCommand() should return pointer to the command"
-}
+func (e NonPointerError) Error() string { _ = "STUB: not implemented"; return "" }

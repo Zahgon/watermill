@@ -4,12 +4,10 @@ import (
 	"context"
 	stdSQL "database/sql"
 	"fmt"
-	"math/rand"
 	"time"
 
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 
-	"github.com/brianvoe/gofakeit/v6"
 	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 
@@ -142,33 +140,7 @@ func main() {
 	}
 }
 
-func newFakeOrderPlaced() OrderPlaced {
-	var products []Product
-
-	for i := 0; i < rand.Intn(5)+1; i++ {
-		products = append(products, Product{
-			ID:   watermill.NewShortUUID(),
-			Name: gofakeit.ProductName(),
-		})
-	}
-
-	return OrderPlaced{
-		OrderID: watermill.NewUUID(),
-		Customer: Customer{
-			ID:    watermill.NewULID(),
-			Name:  gofakeit.Name(),
-			Email: gofakeit.Email(),
-			Phone: gofakeit.Phone(),
-		},
-		Address: Address{
-			Street:  gofakeit.Street(),
-			City:    gofakeit.City(),
-			Zip:     gofakeit.Zip(),
-			Country: gofakeit.Country(),
-		},
-		Products: products,
-	}
-}
+func newFakeOrderPlaced() OrderPlaced { _ = "STUB: not implemented"; return *new(OrderPlaced) }
 
 type OrderPlaced struct {
 	OrderID  string    `json:"order_id"`

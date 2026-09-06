@@ -123,7 +123,6 @@ func main() {
 					Name: event.Customer.Name,
 				}
 
-				// In a real world scenario, we would delay the command by a few days
 				ctx = delay.WithContext(ctx, delay.For(8*time.Second))
 
 				err := commandBus.Send(ctx, cmd)
@@ -144,8 +143,6 @@ func main() {
 			"OnSendFeedbackForm",
 			func(ctx context.Context, cmd *SendFeedbackForm) error {
 				fmt.Printf("📧 Sending feedback form to %v <%v>\n", cmd.Name, cmd.To)
-
-				// In a real world scenario, we would send an email to the customer here
 
 				return nil
 			},

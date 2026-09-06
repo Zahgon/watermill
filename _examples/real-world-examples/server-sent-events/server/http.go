@@ -2,19 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"math/rand"
 	"net/http"
-	"strings"
-	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 
 	"github.com/ThreeDotsLabs/watermill"
-	watermillHTTP "github.com/ThreeDotsLabs/watermill-http/v2/pkg/http"
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
@@ -28,51 +20,7 @@ type Router struct {
 	Logger       watermill.LoggerAdapter
 }
 
-func (router Router) Mux() *chi.Mux {
-	r := chi.NewRouter()
-
-	root := http.Dir("./public")
-	FileServer(r, "/", root)
-
-	sseRouter, err := watermillHTTP.NewSSERouter(
-		watermillHTTP.SSERouterConfig{
-			UpstreamSubscriber: router.Subscriber,
-			ErrorHandler:       watermillHTTP.DefaultErrorHandler,
-		},
-		router.Logger,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	postStream := postStreamAdapter{storage: router.PostsStorage, logger: router.Logger}
-	feedStream := feedStreamAdapter{storage: router.FeedsStorage, logger: router.Logger}
-	allFeedsStream := allFeedsStreamAdapter{storage: router.FeedsStorage, logger: router.Logger}
-
-	postHandler := sseRouter.AddHandler(PostUpdatedTopic, postStream)
-	feedHandler := sseRouter.AddHandler(FeedUpdatedTopic, feedStream)
-	allFeedsHandler := sseRouter.AddHandler(FeedUpdatedTopic, allFeedsStream)
-
-	r.Route("/api", func(r chi.Router) {
-		r.Get("/posts/{id}", postHandler)
-		r.Post("/posts", router.CreatePost)
-		r.Post("/generate/post", router.GeneratePost)
-		r.Patch("/posts/{id}", router.UpdatePost)
-		r.Get("/feeds/{name}", feedHandler)
-		r.Get("/feeds", allFeedsHandler)
-	})
-
-	go func() {
-		err = sseRouter.Run(context.Background())
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	<-sseRouter.Running()
-
-	return r
-}
+func (router Router) Mux() *chi.Mux { _ = "STUB: not implemented"; return nil }
 
 type feedSummary struct {
 	Name  string `json:"name"`
@@ -89,42 +37,18 @@ type allFeedsStreamAdapter struct {
 }
 
 func (f allFeedsStreamAdapter) InitialStreamResponse(w http.ResponseWriter, r *http.Request) (response interface{}, ok bool) {
-	resp, err := f.getResponse(r)
-	if err != nil {
-		logAndWriteError(f.logger, w, err)
-		return resp, false
-	}
-
-	return resp, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (f allFeedsStreamAdapter) NextStreamResponse(r *http.Request, msg *message.Message) (response interface{}, ok bool) {
-	resp, err := f.getResponse(r)
-	if err != nil {
-		return resp, false
-	}
-
-	return resp, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (f allFeedsStreamAdapter) getResponse(r *http.Request) (interface{}, error) {
-	feeds, err := f.storage.All(r.Context())
-	if err != nil {
-		return nil, err
-	}
-
-	response := AllFeedsResponse{
-		Feeds: []feedSummary{},
-	}
-
-	for _, f := range feeds {
-		response.Feeds = append(response.Feeds, feedSummary{
-			Name:  f.Name,
-			Posts: len(f.Posts),
-		})
-	}
-
-	return response, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type CreatePostRequest struct {
@@ -134,71 +58,17 @@ type CreatePostRequest struct {
 }
 
 func (router Router) CreatePost(w http.ResponseWriter, r *http.Request) {
-	req := CreatePostRequest{}
-	err := render.Decode(r, &req)
-	if err != nil {
-		logAndWriteError(router.Logger, w, err)
-		return
-	}
-
-	post := NewPost(
-		watermill.NewUUID(),
-		req.Title,
-		req.Content,
-		req.Author,
-	)
-
-	err = router.addPost(r.Context(), post)
-	if err != nil {
-		logAndWriteError(router.Logger, w, err)
-		return
-	}
-
-	w.WriteHeader(204)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (router Router) GeneratePost(w http.ResponseWriter, r *http.Request) {
-	title := gofakeit.Sentence(5)
-	content := gofakeit.Sentence(20)
-	author := gofakeit.Name()
-
-	tagsCount := rand.Intn(3) + 1
-	for i := 0; i < tagsCount; i++ {
-		content += fmt.Sprintf(" #%v", generatedTags[rand.Intn(len(generatedTags))])
-	}
-
-	post := NewPost(
-		watermill.NewUUID(),
-		title,
-		content,
-		author,
-	)
-
-	err := router.addPost(r.Context(), post)
-	if err != nil {
-		logAndWriteError(router.Logger, w, err)
-		return
-	}
-
-	w.WriteHeader(204)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (router Router) addPost(ctx context.Context, post Post) error {
-	err := router.PostsStorage.Add(ctx, post)
-	if err != nil {
-		return err
-	}
-
-	event := PostCreated{
-		Post:       post,
-		OccurredAt: time.Now().UTC(),
-	}
-
-	err = router.Publisher.Publish(PostCreatedTopic, event)
-	if err != nil {
-		return err
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -209,45 +79,8 @@ type UpdatePostRequest struct {
 }
 
 func (router Router) UpdatePost(w http.ResponseWriter, r *http.Request) {
-	req := UpdatePostRequest{}
-	err := render.Decode(r, &req)
-	if err != nil {
-		logAndWriteError(router.Logger, w, err)
-		return
-	}
-
-	post, err := router.PostsStorage.ByID(r.Context(), req.ID)
-	if err != nil {
-		logAndWriteError(router.Logger, w, err)
-		return
-	}
-
-	newPost := NewPost(
-		post.ID,
-		req.Title,
-		req.Content,
-		post.Author,
-	)
-
-	err = router.PostsStorage.Update(r.Context(), newPost)
-	if err != nil {
-		logAndWriteError(router.Logger, w, err)
-		return
-	}
-
-	event := PostUpdated{
-		OriginalPost: post,
-		NewPost:      newPost,
-		OccurredAt:   time.Now().UTC(),
-	}
-
-	err = router.Publisher.Publish(PostUpdatedTopic, event)
-	if err != nil {
-		logAndWriteError(router.Logger, w, err)
-		return
-	}
-
-	w.WriteHeader(204)
+	_ = "STUB: not implemented"
+	return
 }
 
 type feedStreamAdapter struct {
@@ -256,46 +89,18 @@ type feedStreamAdapter struct {
 }
 
 func (f feedStreamAdapter) InitialStreamResponse(w http.ResponseWriter, r *http.Request) (response interface{}, ok bool) {
-	resp, err := f.getResponse(r)
-	if err != nil {
-		logAndWriteError(f.logger, w, err)
-		return nil, false
-	}
-
-	return resp, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (f feedStreamAdapter) NextStreamResponse(r *http.Request, msg *message.Message) (response interface{}, ok bool) {
-	feedUpdated := FeedUpdated{}
-
-	err := json.Unmarshal(msg.Payload, &feedUpdated)
-	if err != nil {
-		return nil, false
-	}
-
-	feedName := chi.URLParam(r, "name")
-
-	if feedUpdated.Name != feedName {
-		return nil, false
-	}
-
-	resp, err := f.getResponse(r)
-	if err != nil {
-		return nil, false
-	}
-
-	return resp, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (f feedStreamAdapter) getResponse(r *http.Request) (response interface{}, err error) {
-	feedName := chi.URLParam(r, "name")
-
-	feed, err := f.storage.ByName(r.Context(), feedName)
-	if err != nil {
-		return nil, err
-	}
-
-	return feed, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type postStreamAdapter struct {
@@ -304,67 +109,23 @@ type postStreamAdapter struct {
 }
 
 func (p postStreamAdapter) InitialStreamResponse(w http.ResponseWriter, r *http.Request) (response interface{}, ok bool) {
-	resp, err := p.getResponse(r)
-	if err != nil {
-		logAndWriteError(p.logger, w, err)
-		return nil, false
-	}
-
-	return resp, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (p postStreamAdapter) NextStreamResponse(r *http.Request, msg *message.Message) (response interface{}, ok bool) {
-	postUpdated := PostUpdated{}
-
-	err := json.Unmarshal(msg.Payload, &postUpdated)
-	if err != nil {
-		return nil, false
-	}
-
-	postID := chi.URLParam(r, "id")
-
-	if postUpdated.OriginalPost.ID != postID {
-		return nil, false
-	}
-
-	resp, err := p.getResponse(r)
-	if err != nil {
-		return nil, false
-	}
-
-	return resp, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (p postStreamAdapter) getResponse(r *http.Request) (response interface{}, err error) {
-	postID := chi.URLParam(r, "id")
-
-	post, err := p.storage.ByID(r.Context(), postID)
-	if err != nil {
-		return nil, err
-	}
-
-	return post, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func FileServer(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit URL parameters.")
-	}
-
-	fs := http.StripPrefix(path, http.FileServer(root))
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		fs.ServeHTTP(w, r)
-	})
-}
+func FileServer(r chi.Router, path string, root http.FileSystem) { _ = "STUB: not implemented"; return }
 
 func logAndWriteError(logger watermill.LoggerAdapter, w http.ResponseWriter, err error) {
-	logger.Error("Error", err, nil)
-	w.WriteHeader(500)
+	_ = "STUB: not implemented"
+	return
 }

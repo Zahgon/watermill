@@ -2,24 +2,12 @@ package gochannel
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
-// FanOut is a component that receives messages from a topic and passes them
-// to all subscribers. In effect, messages are "multiplied".
-//
-// A typical use case for using FanOut is having one external subscription and multiple workers
-// inside the process.
-//
-// You need to call AddSubscription method for all topics that you want to listen to.
-// This needs to be done *before* starting the FanOut.
-//
-// FanOut exposes the standard Subscriber interface.
 type FanOut struct {
 	internalPubSub *GoChannel
 	internalRouter *message.Router
@@ -32,93 +20,25 @@ type FanOut struct {
 	subscribedLock   sync.Mutex
 }
 
-// NewFanOut creates a new FanOut.
 func NewFanOut(
 	subscriber message.Subscriber,
 	logger watermill.LoggerAdapter,
 ) (*FanOut, error) {
-	if subscriber == nil {
-		return nil, errors.New("missing subscriber")
-	}
-	if logger == nil {
-		logger = watermill.NopLogger{}
-	}
-
-	router, err := message.NewRouter(message.RouterConfig{}, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	return &FanOut{
-		internalPubSub: NewGoChannel(Config{}, logger),
-		internalRouter: router,
-
-		subscriber: subscriber,
-
-		logger: logger,
-
-		subscribedTopics: map[string]struct{}{},
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-// AddSubscription add an internal subscription for the given topic.
-// You need to call this method with all topics that you want to listen to, before the FanOut is started.
-// AddSubscription is idempotent.
-func (f *FanOut) AddSubscription(topic string) {
-	f.subscribedLock.Lock()
-	defer f.subscribedLock.Unlock()
+func (f *FanOut) AddSubscription(topic string) { _ = "STUB: not implemented"; return }
 
-	_, ok := f.subscribedTopics[topic]
-	if ok {
-		// Subscription already exists
-		return
-	}
+func (f *FanOut) Run(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	f.logger.Trace("Adding fan-out subscription for topic", watermill.LogFields{
-		"topic": topic,
-	})
+func (f *FanOut) Running() chan struct{} { _ = "STUB: not implemented"; return nil }
 
-	f.internalRouter.AddHandler(
-		fmt.Sprintf("fanout-%s", topic),
-		topic,
-		f.subscriber,
-		topic,
-		f.internalPubSub,
-		message.PassthroughHandler,
-	)
+func (f *FanOut) IsClosed() bool { _ = "STUB: not implemented"; return false }
 
-	f.subscribedTopics[topic] = struct{}{}
-}
-
-// Run runs the FanOut.
-func (f *FanOut) Run(ctx context.Context) error {
-	return f.internalRouter.Run(ctx)
-}
-
-// Running is closed when FanOut is running.
-func (f *FanOut) Running() chan struct{} {
-	return f.internalRouter.Running()
-}
-
-func (f *FanOut) IsClosed() bool {
-	return f.internalRouter.IsClosed()
-}
-
-// Subscribe starts subscription to the FanOut's internal Pub/Sub.
 func (f *FanOut) Subscribe(ctx context.Context, topic string) (<-chan *message.Message, error) {
-	return f.internalPubSub.Subscribe(ctx, topic)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-// Close closes the FanOut's internal Pub/Sub.
-func (f *FanOut) Close() error {
-	var err error
-
-	if routerCloseErr := f.internalRouter.Close(); routerCloseErr != nil {
-		err = errors.Join(err, routerCloseErr)
-	}
-	if internalPubSubCloseErr := f.internalPubSub.Close(); internalPubSubCloseErr != nil {
-		err = errors.Join(err, internalPubSubCloseErr)
-	}
-
-	return err
-}
+func (f *FanOut) Close() error { _ = "STUB: not implemented"; return nil }

@@ -56,7 +56,7 @@ func main() {
 	}()
 
 	go func() {
-		// This goroutine simulates some events being published in the background
+
 		ctx := context.Background()
 		for {
 			postID := 1 + rand.Intn(2)

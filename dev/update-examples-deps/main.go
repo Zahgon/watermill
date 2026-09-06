@@ -2,13 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
-	"regexp"
-	"strings"
 	"sync"
 )
 
@@ -63,112 +57,14 @@ func main() {
 	wg.Wait()
 }
 
-func getGomods() []string {
-	var fileList []string
+func getGomods() []string { _ = "STUB: not implemented"; return nil }
 
-	err := filepath.Walk(".", func(path string, f os.FileInfo, err error) error {
-		if strings.Contains(path, "go.mod") {
-			fileList = append(fileList, path)
-		}
-		return nil
-	})
+func getLatestGoVersionFromWebsite() string { _ = "STUB: not implemented"; return "" }
 
-	if err != nil {
-		panic(err)
-	}
+func goModTidy(dir string, file string) error { _ = "STUB: not implemented"; return nil }
 
-	return fileList
-}
+func replaceGoInDockerCompose(dir string) error { _ = "STUB: not implemented"; return nil }
 
-func getLatestGoVersionFromWebsite() string {
-	resp, err := http.Get("https://go.dev/VERSION?m=text")
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
+func updateWatermill(dir string, file string) error { _ = "STUB: not implemented"; return nil }
 
-	out, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	version := strings.Split(string(out), "\n")[0]
-	version = strings.TrimPrefix(version, "go")
-
-	// we only want the major.minor version
-	version = strings.Split(version, ".")[0] + "." + strings.Split(version, ".")[1]
-
-	return version
-}
-
-func goModTidy(dir string, file string) error {
-	cmd := []string{"go", "mod", "tidy", "-go=" + latestGoVersion}
-
-	fmt.Println("\nrunning", cmd, "in", dir)
-
-	cmd2 := exec.Command(cmd[0], cmd[1:]...)
-	cmd2.Dir = dir
-	cmd2.Stderr = os.Stderr
-	cmd2.Stdout = os.Stdout
-
-	return cmd2.Run()
-}
-
-// replaceGoInDockerCompose replaces the go version in the Dockerfile
-// using Go (not sed)
-func replaceGoInDockerCompose(dir string) error {
-	dockerComposeFile := filepath.Join(dir, "docker-compose.yml")
-
-	b, err := os.ReadFile(dockerComposeFile)
-	// return if not exist
-	if os.IsNotExist(err) {
-		return nil
-	}
-
-	if err != nil {
-		return err
-	}
-
-	pattern := `golang:1\.[0-9]+(?:\.[0-9]+)?`
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		return fmt.Errorf("failed to compile regex: %w", err)
-	}
-
-	newContent := re.ReplaceAllString(string(b), "golang:"+latestGoVersion)
-
-	err = os.WriteFile(dockerComposeFile, []byte(newContent), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write updated docker-compose.yml: %w", err)
-	}
-
-	return nil
-}
-
-func updateWatermill(dir string, file string) error {
-	c := []string{"go", "get", "-u", "github.com/ThreeDotsLabs/watermill@latest"}
-
-	fmt.Println("\nrunning", c, "in", dir)
-
-	cmd := exec.Command(c[0], c[1:]...)
-	cmd.Dir = dir
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	err := cmd.Run()
-
-	return err
-}
-
-func updateDeps(dir string, file string) error {
-	c := []string{"go", "get", "-u", "./..."}
-
-	fmt.Println("\nrunning", c, "in", dir)
-
-	cmd := exec.Command(c[0], c[1:]...)
-	cmd.Dir = dir
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	err := cmd.Run()
-
-	return err
-}
+func updateDeps(dir string, file string) error { _ = "STUB: not implemented"; return nil }

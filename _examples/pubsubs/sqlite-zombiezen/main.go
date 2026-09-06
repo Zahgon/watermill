@@ -1,10 +1,7 @@
-// Sources for https://watermill.io/docs/getting-started/
 package main
 
 import (
 	"context"
-	"log"
-	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen"
@@ -16,8 +13,6 @@ import (
 func main() {
 	logger := watermill.NewStdLogger(false, false)
 
-	// &cache=shared is critical, see: https://github.com/zombiezen/go-sqlite/issues/92#issuecomment-2052330643
-	// connectionDSN := "file:db.sqlite3?journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared"
 	connectionDSN := "file:ephemeral?mode=memory&cache=shared"
 	conn, err := sqlite.OpenConn(connectionDSN)
 	if err != nil {
@@ -50,21 +45,6 @@ func main() {
 	publishMessages(publisher)
 }
 
-func publishMessages(publisher message.Publisher) {
-	for {
-		msg := message.NewMessage(watermill.NewUUID(), []byte(`{"message": "Hello from ZombieZen!"}`))
+func publishMessages(publisher message.Publisher) { _ = "STUB: not implemented"; return }
 
-		if err := publisher.Publish("example_topic", msg); err != nil {
-			panic(err)
-		}
-
-		time.Sleep(time.Second)
-	}
-}
-
-func process(messages <-chan *message.Message) {
-	for msg := range messages {
-		log.Printf("ZombieZen received message: %s, payload: %s", msg.UUID, string(msg.Payload))
-		msg.Ack()
-	}
-}
+func process(messages <-chan *message.Message) { _ = "STUB: not implemented"; return }

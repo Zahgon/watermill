@@ -11,7 +11,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	driver "github.com/go-sql-driver/mysql"
 )
 
 const topic = "counter"
@@ -65,22 +64,4 @@ type messagePayload struct {
 	CounterUUID string `json:"counter_uuid"`
 }
 
-func createDB() *stdSQL.DB {
-	conf := driver.NewConfig()
-	conf.Net = "tcp"
-	conf.User = "root"
-	conf.Addr = "mysql"
-	conf.DBName = "example"
-
-	db, err := stdSQL.Open("mysql", conf.FormatDSN())
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
-}
+func createDB() *stdSQL.DB { _ = "STUB: not implemented"; return nil }
